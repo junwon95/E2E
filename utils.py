@@ -169,7 +169,7 @@ def make_checkpoint(model, epoch, optimizer):
 
 
 def get_last_checkpoint_dir(root):
-    checkpoints_path = sorted(os.listdir(root), reverse=False)[0]
+    checkpoints_path = sorted(os.listdir(root), reverse=True)[0]
     print("*****"+checkpoints_path)
     return os.path.join(root, checkpoints_path) + '/'
 
@@ -221,8 +221,12 @@ def load_model(opt, model, vocab):
     if opt['resume']:
         root = './runs/'
         resume_path = get_last_checkpoint_dir(root) + 'best_model.pt'
+        sd = model.state_dict()
         checkpoint = torch.load(resume_path)
-        model.load_state_dict(checkpoint['state_dict'], strict=False) #-------------------------------------------------
+        sd = sd.update(checkpoint['state_dict'])
+
+        model.load_state_dict(sd, strict=False) #-------------------------------------------------
+
         optimizer.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epoch']
         print('[resume_model_load] resuming epoch:{}'.format(start_epoch))
