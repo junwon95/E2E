@@ -78,14 +78,14 @@ def inference(opt):
     model.eval()
     y_hats = model.greedy_search(feature.unsqueeze(0), input_length)
     print(y_hats)
-    sentance = vocab.label_to_string(y_hats.cpu().detach().numpy())
-    print(sentance)
+    sentence = vocab.label_to_string(y_hats.cpu().detach().numpy())
+    print(sentence)
     timer.endlog('Inference complete')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--audio_path', type=str, default='', help='audio_path')
+    parser.add_argument('--audio_path', type=str, default='INPUT/test.pcm', help='audio_path')
     option = parser.parse_args()
 
     with open('./data/config.yaml') as f:

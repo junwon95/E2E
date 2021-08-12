@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import torch
 import logging
 import platform
@@ -185,6 +187,7 @@ def make_dir(epoch):
     root = './runs/'
     date_time = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime())
     dirname = root + f"{date_time}/"
+    os.makedirs(dirname)
     if epoch == 0:
         if os.path.exists(dirname) is False:
             os.makedirs(dirname)
@@ -195,8 +198,8 @@ def make_dir(epoch):
 
 def save_model(checkpoint, is_best, save_pretrined=True):
     dirname = make_dir(checkpoint['epoch'] - 1)
-    f_path = "checkpoint2.pt"
-    pre_path = 'pretrained2323.pt'
+    f_path = "checkpoint.pt"
+    pre_path = 'pretrained.pt'
     if os.path.exists(dirname + f_path):
         os.remove(dirname + f_path)
     torch.save(checkpoint, dirname + f_path)
@@ -221,20 +224,38 @@ def load_model(opt, model, vocab):
     if opt['resume']:
         root = './runs/'
         resume_path = get_last_checkpoint_dir(root) + 'best_model.pt'
-        sd = model.state_dict()
+
         checkpoint = torch.load(resume_path)
-        sd = sd.update(checkpoint['state_dict'])
 
-        model.load_state_dict(sd, strict=False) #-------------------------------------------------
+        state_dict = checkpoint['state_dict']
+        new_state_dict = model.state_dict()
 
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        for k, v in state_dict.items():
+            if 'module' not in k:
+                k = 'module.' + k
+            else:
+                k = k.replace('features.module.', 'module.features.')
+            new_state_dict[k] = v
+
+        model.load_state_dict(checkpoint['state_dict'], strict=False) #-------------------------------------------------
+
+        state_dict = checkpoint['optimizer']
+
+        for k,v in state_dict.items():
+            print(k)
+            print(v)
+
+        optimizer.load_state_dict(state_dict)
+        #  TODO -----------------------------------------------
+
+
         start_epoch = checkpoint['epoch']
         print('[resume_model_load] resuming epoch:{}'.format(start_epoch))
 
     elif opt['inference']:
         weight_path = opt['weight_path']
         checkpoint = torch.load(weight_path)
-        model.load_state_dict(checkpoint, strict=False) #------------------------------------------------------
+        model.load_state_dict(checkpoint['state_dict'], strict=False) #------------------------------------------------------
         print('[inference_model_load] complete')
 
     return model, optimizer, criterion, scheduler, start_epoch

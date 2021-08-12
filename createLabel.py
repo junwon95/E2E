@@ -27,7 +27,7 @@ for i, line in enumerate(lines):
             label_list.append(ch)
             label_freq.append(1)
             print(ch)
-        elif label_list.index(ch) > 2000:
+        elif label_list.index(ch) >= 2000:
             label_freq[label_list.index(ch)] += 1
 
 label = {'id': [0, 1, 2], 'char': ['<pad>', '<sos>', '<eos>'], 'freq': [0, 0, 0]}
