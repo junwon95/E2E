@@ -228,26 +228,12 @@ def load_model(opt, model, vocab):
         checkpoint = torch.load(resume_path)
 
         state_dict = checkpoint['state_dict']
-        new_state_dict = model.state_dict()
-
-        for k, v in state_dict.items():
-            if 'module' not in k:
-                k = 'module.' + k
-            else:
-                k = k.replace('features.module.', 'module.features.')
-            new_state_dict[k] = v
-
         model.load_state_dict(checkpoint['state_dict'], strict=False) #-------------------------------------------------
 
         state_dict = checkpoint['optimizer']
 
-        for k,v in state_dict.items():
-            print(k)
-            print(v)
-
         optimizer.load_state_dict(state_dict)
         #  TODO -----------------------------------------------
-
 
         start_epoch = checkpoint['epoch']
         print('[resume_model_load] resuming epoch:{}'.format(start_epoch))
