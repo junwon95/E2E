@@ -121,7 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     option = parser.parse_args()
 
-    with open('./data/config.yaml') as f:
+    with open('E2E/data/config.yaml') as f:
         opt = yaml.load(f, Loader=yaml.FullLoader)
 
     if option.resume:
