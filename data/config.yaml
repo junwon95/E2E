@@ -1,7 +1,7 @@
 #train dataset
-root : C:/Users/junwonseo95/Desktop/dataset
-script_data_path: ./data/aihub/transcripts.txt
-vocab_path: ./data/aihub/aihub_labels.csv
+root : /content/dataset
+script_data_path: /content/transcripts.txt
+vocab_path: E2E/data/aihub/aihub_labels.csv
 
 #input feature
 feature: melspectrogram
@@ -21,7 +21,7 @@ save_every: 1
 #inference
 inference: False
 use_val_data: False
-weight_path: ./weights/best_model.pt
+weight_path: E2E/weights/best_model.pt
 
 
 #validation
