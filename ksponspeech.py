@@ -31,7 +31,7 @@ class KsponSpeechVocabulary():
                 if label.item() == self.eos_id:
                     break
                 elif label.item() == self.blank_id:
-                  continue
+                    continue
                 sentence += self.id_dict[label.item()]
             return sentence
 

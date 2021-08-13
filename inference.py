@@ -11,6 +11,7 @@ from ksponspeech import KsponSpeechVocabulary
 from utils import check_envirionment, char_errors, save_result, make_out, load_model, Timer
 from model.deepspeech import DeepSpeech2
 
+
 def load_audio(audio_path, extension='pcm'):
     """
     Load audio file (PCM) to sound. if del_silence is True, Eliminate all sounds below 30dB.
@@ -47,16 +48,6 @@ def inference(opt):
     device = check_envirionment(opt['use_cuda'])
     vocab = KsponSpeechVocabulary(opt['vocab_path'])
 
-    if opt['use_val_data']:
-        val_dataset = dataset(opt, vocab, train=False)
-        custom_loader = DataLoader(dataset=val_dataset, batch_size=opt['batch_size'] * 2, drop_last=True,
-                                num_workers=8, collate_fn=val_dataset._collate_fn)
-    else:
-        #custom_dataset
-        feature = parse_audio(opt['audio_path'])
-        feature = feature.to(device)
-        input_length = torch.LongTensor([len(feature)])
-
     model = DeepSpeech2(
         input_size=opt['n_mels'],
         num_classes=len(vocab),
@@ -70,29 +61,47 @@ def inference(opt):
     ).to(device)
 
     model, optimizer, criterion, scheduler, start_epoch = load_model(opt, model, vocab)
-    print('-'*40)
+    print('-' * 40)
     print(model)
-    print('-'*40)
+    print('-' * 40)
+
+    if opt['mode'] == 'test':
+        with open("E2E/TEST/audio_paths.txt", 'r', encoding="cp949") as f:
+            audio_paths = [opt['root'] + '/' + line.strip('\n').replace("\\", "/") for line in f.readlines()]
+    elif opt['mode'] == 'single':
+        audio_paths = [opt['audio_path']]
 
     timer.startlog('Inference Start')
-    model.eval()
-    y_hats = model.greedy_search(feature.unsqueeze(0), input_length)
-    print(y_hats)
-    sentence = vocab.label_to_string(y_hats.cpu().detach().numpy())
-    print(sentence)
+
+    for i, audio_path in enumerate(audio_paths):
+
+        print(f'sentence no.{i}')
+
+        feature = parse_audio(audio_path)
+        feature = feature.to(device)
+        input_length = torch.LongTensor([len(feature)])
+
+        y_hats = model.greedy_search(feature.unsqueeze(0), input_length)
+        sentence = vocab.label_to_string(y_hats.cpu().detach().numpy())
+
+        print(sentence)
+
     timer.endlog('Inference complete')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--audio_path', type=str, default='INPUT/test.pcm', help='audio_path')
+    parser.add_argument('--mode', type=str, default='single', help='audio_path')
+
     option = parser.parse_args()
 
     with open('E2E/data/config.yaml') as f:
         opt = yaml.load(f, Loader=yaml.FullLoader)
-    if option.audio_path != '':
-        opt['audio_path'] = option.audio_path
-        opt['use_val_data'] = False
 
+    if option.mode == 'single':
+        opt['audio_path'] = 'E2E/INPUT/test.pcm'
+
+    opt['mode'] = option.mode
     opt['inference'] = True
+
     inference(opt)

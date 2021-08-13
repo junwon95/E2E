@@ -1,7 +1,7 @@
 #train dataset
 root : /content/dataset
 script_data_path: /content/transcripts.txt
-vocab_path: E2E/data/aihub/aihub_labels.csv
+vocab_path: E2E/data/aihub/e2e_labels.csv
 
 #input feature
 feature: melspectrogram
@@ -11,7 +11,7 @@ split_balance : 0.1
 
 #train
 batch_size: 1
-epochs: 12
+epochs:
 use_cuda: True
 cer_every: 10000
 
