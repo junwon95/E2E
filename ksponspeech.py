@@ -25,15 +25,15 @@ class KsponSpeechVocabulary():
         Returns: sentence
             - **sentence** (str or list): symbol of labels
         """
-        # if len(labels.shape) == 1:
-        #     sentence = str()
-        #     for label in labels:
-        #         if label.item() == self.eos_id:
-        #             break
-        #         elif label.item() == self.blank_id:
-        #             continue
-        #         sentence += self.id_dict[label.item()]
-        #     return sentence
+        if len(labels.shape) == 1:
+            sentence = str()
+            for label in labels:
+                if label.item() == self.eos_id:
+                    break
+                elif label.item() == self.blank_id:
+                    continue
+                sentence += self.id_dict[label.item()]
+            return sentence
 
         sentences = list()
         for batch in labels:
