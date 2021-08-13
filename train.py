@@ -9,6 +9,7 @@ from ksponspeech import KsponSpeechVocabulary
 from utils import check_envirionment, char_errors, save_result, save_model, make_checkpoint, load_model, Timer
 from model.deepspeech import DeepSpeech2
 
+
 def train(opt):
     timer = Timer()
     timer.log('Load Data')
@@ -37,9 +38,9 @@ def train(opt):
     ).to(device)
 
     model, optimizer, criterion, scheduler, start_epoch = load_model(opt, model, vocab)
-    print('-'*40)
+    print('-' * 40)
     print(model)
-    print('-'*40)
+    print('-' * 40)
 
     timer.startlog('Train Start')
     print_epoch = 0
@@ -73,7 +74,7 @@ def train_on_epoch(train_loader, model, optimizer, criterion, scheduler, device,
         optimizer.zero_grad()
         epoch_loss = loss.item()
         time_stamp += 1
-        if time_stamp == 10 or time_stamp % opt['cer_every'] == 0 or time_stamp == len(train_loader)-1:
+        if time_stamp == 10 or time_stamp % opt['cer_every'] == 0 or time_stamp == len(train_loader) - 1:
             cer = metric(targets, outputs.max(-1)[1])
         loss.backward()
         optimizer.step()
@@ -86,7 +87,7 @@ def train_on_epoch(train_loader, model, optimizer, criterion, scheduler, device,
     if epoch % opt['save_every'] == 0:
         check_point = make_checkpoint(model, epoch, optimizer)
         if epoch_loss < pre_loss:
-            #save best model
+            # save best model
             model_save_path = save_model(check_point, True)
         else:
             model_save_path = save_model(check_point, False)
@@ -107,7 +108,10 @@ def validation_on_epoch(val_loader, vocab, model, device, metric, model_save_pat
         targets = targets[:, 1:].to(device)
         y_hats = model.greedy_search(inputs, input_lengths)
         for i in range(targets.size(0)):
-            target_list.append(vocab.label_to_string(targets[i]))
+            try:
+                target_list.append(vocab.label_to_string(targets[i]))
+            except:
+                target_list.append('*')
             predict_list.append(vocab.label_to_string(y_hats[i].cpu().detach().numpy()))
         if idx == len(progress_bar):
             cer = metric(targets, y_hats)
