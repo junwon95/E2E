@@ -73,6 +73,7 @@ def inference(opt):
 
     timer.startlog('Inference Start')
 
+    f = open("E2E/TEST/predictions.txt", 'w')
     for i, audio_path in enumerate(audio_paths):
 
         print(f'sentence no.{i}')
@@ -85,6 +86,8 @@ def inference(opt):
         sentence = vocab.label_to_string(y_hats.cpu().detach().numpy())
 
         print(sentence)
+        f.write(' '.join(sentence[0].strip("<sos>").split()) + '\n')
+    f.close()
 
     timer.endlog('Inference complete')
 

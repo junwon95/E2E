@@ -1,7 +1,6 @@
 import re
 import Levenshtein
 
-
 # PER '|' , LOC '$' , ORG '{'
 
 def get_cer(tar, pred):
@@ -75,6 +74,8 @@ f2 = open("E2E/TEST/predictions.txt", 'rt', encoding="utf8")
 targets = f.readlines()
 predictions = f2.readlines()
 
+predictions = [line.split('\t')[1] for i, line in enumerate(predictions) if line.split('\t')[0] == targets[i]]
+
 # ---------- statistics ----------
 
 # CER
@@ -120,13 +121,13 @@ org_recall_len = 0
 
 for target, prediction in zip(targets, predictions):
     # -------------- check CER ---------------
-    PER = re.findall('\|.*?]', target)
-    LOC = re.findall('\$.*?]', target)
-    ORG = re.findall('\{.*?]', target)
+    PER = re.findall('\|.*?(\n|]| .*? )', target)
+    LOC = re.findall('\$.*?(\n|]| .*? )', target)
+    ORG = re.findall('\{.*?(\n|]| .*? )', target)
 
-    P_PER = re.findall('\|.*?]', prediction)
-    P_LOC = re.findall('\$.*?]', prediction)
-    P_ORG = re.findall('\{.*?]', prediction)
+    P_PER = re.findall('\|.*?(\n|]| .*? )', prediction)
+    P_LOC = re.findall('\$.*?(\n|]| .*? )', prediction)
+    P_ORG = re.findall('\{.*?(\n|]| .*? )', prediction)
 
     dist, length = get_cer(target, prediction)
     total_distance += dist
@@ -199,27 +200,27 @@ print('precision: {:.3f}'.format(precision))
 print('recall: {:.3f}'.format(recall))
 
 print('\n-- PER tags: {:d}'.format(per_cnt))
-per_precision = per_precision_cnt / per_precision_len
-per_recall = per_recall_cnt / per_recall_len
 if per_cnt > 0:
+    per_precision = per_precision_cnt / per_precision_len
+    per_recall = per_recall_cnt / per_recall_len
     print('PER tag CER: {:.3f}'.format(per_distance / per_length))
     print('\nPER F1 score: {:.3f}'.format(2 * per_precision * per_recall / (per_precision + per_recall)))
     print('PER precision: {:.3f}'.format(per_precision))
     print('PER recall: {:.3f}'.format(per_recall))
 
 print('\n-- LOC tags: {:d}'.format(loc_cnt))
-loc_precision = loc_precision_cnt / loc_precision_len
-loc_recall = loc_recall_cnt / loc_recall_len
 if loc_cnt > 0:
+    loc_recall = loc_recall_cnt / loc_recall_len
+    loc_precision = loc_precision_cnt / loc_precision_len
     print('LOC tag CER: {:.3f}'.format(loc_distance / loc_length))
     print('\nLOC F1 score: {:.3f}'.format(2 * loc_precision * loc_recall / (loc_precision + loc_recall)))
     print('LOC precision: {:.3f}'.format(loc_precision))
     print('LOC recall: {:.3f}'.format(loc_recall))
 
 print('\n-- ORG tags: {:d}'.format(org_cnt))
-org_precision = org_precision_cnt / org_precision_len
-org_recall = org_recall_cnt / org_recall_len
 if org_cnt > 0:
+    org_precision = org_precision_cnt / org_precision_len
+    org_recall = org_recall_cnt / org_recall_len
     print('ORG tag CER: {:.3f}'.format(org_distance / org_length))
     print('\nORG F1 score: {:.3f}'.format(2 * org_precision * org_recall / (org_precision + org_recall)))
     print('ORG precision: {:.3f}'.format(org_precision))
