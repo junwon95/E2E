@@ -10,7 +10,7 @@ use_npy: False
 split_balance : 0.1
 
 #train
-batch_size: 1
+batch_size: 10
 epochs: 18
 use_cuda: True
 cer_every: 10000

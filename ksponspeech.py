@@ -27,11 +27,14 @@ class KsponSpeechVocabulary():
         """
         if len(labels.shape) == 1:
             sentence = str()
+            prev_id = -1
             for label in labels:
                 if label.item() == self.eos_id:
                     break
-                elif label.item() == self.blank_id:
+                elif label.item() == self.blank_id or label.item() == prev_id:
+                    prev_id = label.item()
                     continue
+                prev_id = label.item()
                 sentence += self.id_dict[label.item()]
             return sentence
 
